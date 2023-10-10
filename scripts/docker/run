@@ -1,0 +1,55 @@
+#!/bin/bash
+
+start() {
+  docker-compose up -d $1
+}
+
+restart() {
+  docker-compose restart $1
+}
+
+stop() {
+  docker-compose stop $1
+}
+
+logs() {
+  docker-compose logs -f --tail 100 $@
+}
+
+exec() {
+  docker-compose exec $@
+}
+
+sh() {
+  docker exec -it "$(_getContainerName $1)" sh
+}
+
+rebuild() {
+  docker-compose build $@ && docker-compose stop $@ && docker-compose rm -f $@ && docker-compose up -d $@
+}
+
+# Helper functions
+
+_getContainerName() {
+  docker-compose ps | grep $1 | head -n 1 | cut -d ' ' -f1
+}
+
+version() {
+  echo "Version: 0.0.1"
+}
+
+help() {
+  echo "Usage: $0 <command>"
+  echo "Commands:"
+  echo "  start <service> - start service"
+  echo "  restart <service> - restart service"
+  echo "  stop <service> - stop service"
+  echo "  logs <service> - show logs"
+  echo "  exec <service> <command> - execute command in service"
+  echo "  sh <service> - open shell in service"
+  echo "  rebuild <service> - rebuild service"
+  echo "  version - show version"
+  echo "  help - show this help"
+}
+
+"$@"
